@@ -1,0 +1,31 @@
+{
+  "name": "hollowdb-express",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/firstbatchxyz/hollowdb-express.git",
+  "author": "fco-fbatch <farukcan@firstbatch.xyz>",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "redis": "^4.6.6",
+    "warp-contracts": "^1.4.4"
+  },
+  "devDependencies": {
+    "@types/node": "^14.11.2",
+    "gts": "^3.1.1",
+    "typescript": "~4.7.0"
+  },
+  "scripts": {
+    "start:dev": "export NODE_ENV=dev && npm start",
+    "start:test": "export NODE_ENV=test && npm start",
+    "start": "node build/app.js",
+    "build": "yarn clean && yarn compile",
+    "lint": "gts lint",
+    "clean": "gts clean",
+    "compile": "tsc",
+    "fix": "gts fix",
+    "prepare": "yarn run compile",
+    "pretest": "yarn run compile",
+    "posttest": "yarn run lint"
+  }
+}
