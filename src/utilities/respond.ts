@@ -37,9 +37,9 @@ const failure = (
  * Default status code is `500 Internal Server Error`
  */
 const error = (
-  error: unknown,
   response: Response,
   message: string,
+  error: unknown,
   statusCode: number = StatusCodes.INTERNAL_SERVER_ERROR
 ) => {
   logger.log('SERVER ERROR:', error);

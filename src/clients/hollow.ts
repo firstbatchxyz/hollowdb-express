@@ -4,8 +4,8 @@ import type {JWKInterface} from 'warp-contracts';
 import {LmdbCache} from 'warp-contracts-lmdb';
 import {Client} from '.';
 import {config} from '../configurations';
-import fs from 'fs';
-import path from 'path';
+// import fs from 'fs';
+// import path from 'path';
 import {WarpFactory} from 'warp-contracts';
 import {logger} from '../utilities/logger';
 
@@ -72,14 +72,14 @@ class HollowClient implements Client {
 
   public static getInstance(): HollowClient {
     if (!HollowClient.instance) {
-      const walletPath = path.join(__dirname, '../configurations/wallet.json');
-      const wallet = JSON.parse(fs.readFileSync(walletPath, 'utf8'));
+      // const walletPath = path.join(__dirname, '../configurations/wallet.json');
+      // const wallet = JSON.parse(fs.readFileSync(walletPath, 'utf8'));
 
-      if (!wallet) {
-        throw new Error(
-          'Wallet not found, please put your wallet.json under configurations folder'
-        );
-      }
+      // if (!wallet) {
+      //   throw new Error(
+      //     'Wallet not found, please put your wallet.json under configurations folder'
+      //   );
+      // }
 
       if (config.CONTRACT_TX_ID === '') {
         throw new Error(
@@ -88,7 +88,7 @@ class HollowClient implements Client {
       }
 
       HollowClient.instance = new HollowClient(
-        wallet as JWKInterface,
+        config.ARWEAVE_WALLET,
         config.CONTRACT_TX_ID
       );
     }
