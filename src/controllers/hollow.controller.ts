@@ -49,6 +49,7 @@ export async function remove(request: Request, response: Response) {
   }
 }
 
+//@TODO check if the response from hollow is empty, then return 404
 export async function get(request: Request, response: Response) {
   try {
     const result = await hollowClient().hollowdb.get(request.params.key);

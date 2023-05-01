@@ -11,7 +11,7 @@ import {destroyClients, setupClients} from './clients';
 //@TODO: implement http server with handlers
 //@TODO: implement kill switch
 async function main() {
-  logger.log('Starting the server on port 3000...');
+  logger.log('Starting server...');
   const app = express();
   app.use(helmet());
   app.use(express.json());
@@ -20,6 +20,7 @@ async function main() {
   await setupClients();
 
   app.listen(3000);
+  logger.log('Server started on port 3000.');
 }
 
 main();
