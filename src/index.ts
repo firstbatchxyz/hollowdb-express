@@ -4,25 +4,72 @@ import routerRoot from './routes/root.route';
 // import {config, redisConfig} from './configurations';
 
 import {logger} from './utilities/logger';
-// import {Server} from 'http';
+import {Server} from 'http';
 
 import {destroyClients, setupClients} from './clients';
 import cors from 'cors';
 
-//@TODO: implement http server with handlers
-//@TODO: implement kill switch
-async function main() {
+/**
+ * Prepare the Express HTTP server
+ * @returns A promise to Server which resolves once it starts listening.
+ */
+export async function launchServer(): Promise<Server> {
   logger.log('Starting server...');
   const app = express();
+
+  // setup middlewares
   app.use(cors());
   app.use(helmet());
   app.use(express.json());
+
+  // setup routers
   app.use(routerRoot);
 
   await setupClients();
 
-  app.listen(8000);
-  logger.log('Server started on port 8000.');
+  // listen
+  return await new Promise(resolve => {
+    const server = app.listen(8000, () => {
+      logger.log('========= LIVE! =========');
+      logger.log('Server started on port 8000.');
+      resolve(server);
+    });
+  });
 }
 
-main();
+/**
+ * Kills the server gracefully. Optionally exits the process, which you should NOT if you are testing.
+ * @param server the HTTP server to close
+ * @param exitProcess do process.exit after closing?
+ */
+export async function killServer(server: Server, exitProcess = false) {
+  logger.log('\n\nKilling server.');
+
+  await destroyClients();
+
+  server.close(err => {
+    if (err) {
+      logger.log('Error during termination.', err);
+      // eslint-disable-next-line no-process-exit
+      exitProcess && process.exit(1);
+    } else {
+      logger.log('Gracefully terminated. 💐');
+      // eslint-disable-next-line no-process-exit
+      exitProcess && process.exit(0);
+    }
+  });
+}
+
+if (require.main === module) {
+  launchServer()
+    .then(server => {
+      // signal listeners
+      process.on('SIGTERM', () => killServer(server, true));
+      process.on('SIGINT', () => killServer(server, true));
+    })
+    .catch(err => {
+      logger.log('Could not launch server:', err);
+      // eslint-disable-next-line no-process-exit
+      destroyClients().then(() => process.exit(1));
+    });
+}

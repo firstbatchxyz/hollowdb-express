@@ -8,12 +8,7 @@ export async function put(request: Request, response: Response) {
     await hollowClient().hollowdb.put(request.body.key, request.body.value);
     return respond.success(response, 'success', {}, StatusCodes.OK);
   } catch (error) {
-    return respond.error(
-      response,
-      'hollowdb put error',
-      error,
-      StatusCodes.INTERNAL_SERVER_ERROR
-    );
+    return respond.error(response, 'hollowdb.put', error);
   }
 }
 
@@ -26,12 +21,7 @@ export async function update(request: Request, response: Response) {
     );
     return respond.success(response, 'success', {}, StatusCodes.OK);
   } catch (error) {
-    return respond.error(
-      response,
-      'hollowdb update error',
-      error,
-      StatusCodes.INTERNAL_SERVER_ERROR
-    );
+    return respond.error(response, 'hollowdb.update', error);
   }
 }
 
@@ -40,12 +30,7 @@ export async function remove(request: Request, response: Response) {
     await hollowClient().hollowdb.remove(request.body.key, request.body.proof);
     return respond.success(response, 'success', {}, StatusCodes.OK);
   } catch (error) {
-    return respond.error(
-      response,
-      'hollowdb remove error',
-      error,
-      StatusCodes.INTERNAL_SERVER_ERROR
-    );
+    return respond.error(response, 'hollowdb.remove', error);
   }
 }
 
@@ -62,7 +47,7 @@ export async function get(request: Request, response: Response) {
   } catch (error) {
     return respond.error(
       response,
-      'hollowdb get error',
+      'hollowdb.get',
       error,
       StatusCodes.INTERNAL_SERVER_ERROR
     );

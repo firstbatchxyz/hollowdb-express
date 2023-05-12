@@ -8,12 +8,12 @@ interface put {
 interface update {
   key: string;
   value: string | object;
-  proof: object;
+  proof: object | undefined;
 }
 
 interface remove {
   key: string;
-  proof: object;
+  proof: object | undefined;
 }
 
 interface get {
@@ -28,11 +28,11 @@ export const schemas = {
   update: Joi.object<update>({
     key: Joi.string().required(),
     value: [Joi.string().required(), Joi.object().required()],
-    proof: Joi.object().required(),
+    proof: Joi.object(),
   }),
   remove: Joi.object<remove>({
     key: Joi.string().required(),
-    proof: Joi.object().required(),
+    proof: Joi.object(),
   }),
   get: Joi.object<get>({
     key: Joi.string().required(),

@@ -9,6 +9,7 @@ const router = Router();
 router.post('/put', validate(schemas.put, 'body'), put);
 router.post('/update', validate(schemas.update, 'body'), update);
 router.post('/remove', validate(schemas.remove, 'body'), remove);
+
 router.get('/get/:key', validate(schemas.get, 'params'), get);
 
 // router.post('/upload', upload);
