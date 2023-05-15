@@ -15,10 +15,11 @@ import {Prover} from './util/prover';
 import {StatusCodes} from 'http-status-codes';
 import {killServer, launchServer} from '../src';
 
+const url = 'localhost:8000';
+
 describe('ExpressJS tests', () => {
   let arlocal: ArLocal;
   let server: Server;
-  let url: string;
   let prover: Prover;
 
   const VALUE = BigInt(randomInt(9_999_999)).toString();
@@ -60,7 +61,7 @@ describe('ExpressJS tests', () => {
     console.log(verificationKey.protocol, 'prover ready');
 
     // start the server
-    server = await launchServer();
+    server = await launchServer(contractTxId);
 
     await new Promise(res => {
       console.log('waiting a bit for server to be ready...');
@@ -76,6 +77,7 @@ describe('ExpressJS tests', () => {
         value: VALUE,
       },
     });
+    console.log(putResponse);
     expect(putResponse.status).to.eq(StatusCodes.OK);
 
     const getResponse = await getKey(url, KEY);

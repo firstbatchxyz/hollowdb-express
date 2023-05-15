@@ -15,44 +15,47 @@ class HollowClient implements Client {
   private warp: Warp;
 
   private constructor(jwk: JWKInterface, contractTxId: string) {
-    this.warp = WarpFactory.forMainnet()
-      .useStateCache(
-        new LmdbCache({
-          ...defaultCacheOptions,
-          dbLocation: './cache/warp/state',
-        })
-      )
-      .useContractCache(
-        new LmdbCache({
-          ...defaultCacheOptions,
-          dbLocation: './cache/warp/contract',
-        }),
-        new LmdbCache({
-          ...defaultCacheOptions,
-          dbLocation: './cache/warp/src',
-        })
-      )
-      .useKVStorageFactory(
-        (contractTxId: string) =>
-          new LmdbCache({
-            ...defaultCacheOptions,
-            dbLocation: `./cache/warp/kv/lmdb_2/${contractTxId}`,
-          })
-      );
+    this.warp =
+      config.NODE_ENV === 'test'
+        ? WarpFactory.forLocal(3169 /* testing port */)
+        : WarpFactory.forMainnet()
+            .useStateCache(
+              new LmdbCache({
+                ...defaultCacheOptions,
+                dbLocation: './cache/warp/state',
+              })
+            )
+            .useContractCache(
+              new LmdbCache({
+                ...defaultCacheOptions,
+                dbLocation: './cache/warp/contract',
+              }),
+              new LmdbCache({
+                ...defaultCacheOptions,
+                dbLocation: './cache/warp/src',
+              })
+            )
+            .useKVStorageFactory(
+              (contractTxId: string) =>
+                new LmdbCache({
+                  ...defaultCacheOptions,
+                  dbLocation: `./cache/warp/kv/lmdb_2/${contractTxId}`,
+                })
+            );
 
     this.hollowdb = new HollowDB(jwk, contractTxId, this.warp);
   }
 
   //download the cache and setVerkey and whiteLists if needed
   public async setup(): Promise<void> {
-    //set verification key
-    await this.hollowdb.setVerificationKey(config.VERIFICATION_KEY);
+    // //set verification key
+    // await this.hollowdb.setVerificationKey(config.VERIFICATION_KEY);
 
-    //set whiteList requirement so no one can write to the contract besides the server
-    await this.hollowdb.setWhitelistRequirement({
-      put: true,
-      update: true,
-    });
+    // //set whiteList requirement so no one can write to the contract besides the server
+    // await this.hollowdb.setWhitelistRequirement({
+    //   put: true,
+    //   update: true,
+    // });
 
     //download the cache
     logger.log('Hollowdb is downloading the cache...');

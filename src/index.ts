@@ -1,7 +1,7 @@
 import express from 'express';
 import helmet from 'helmet';
 import routerRoot from './routes/root.route';
-// import {config, redisConfig} from './configurations';
+import {config} from './configurations';
 
 import {logger} from './utilities/logger';
 import {Server} from 'http';
@@ -13,16 +13,17 @@ import cors from 'cors';
  * Prepare the Express HTTP server
  * @returns A promise to Server which resolves once it starts listening.
  */
-export async function launchServer(): Promise<Server> {
+export async function launchServer(contractTxId: string): Promise<Server> {
   logger.log('Starting server...');
-  const app = express();
 
-  // setup middlewares
+  // update config
+  config.CONTRACT_TX_ID = contractTxId;
+
+  // setup middlewares & routes
+  const app = express();
   app.use(cors());
   app.use(helmet());
   app.use(express.json());
-
-  // setup routers
   app.use(routerRoot);
 
   await setupClients();
@@ -61,7 +62,8 @@ export async function killServer(server: Server, exitProcess = false) {
 }
 
 if (require.main === module) {
-  launchServer()
+  const contractTxId = process.argv[2];
+  launchServer(contractTxId)
     .then(server => {
       // signal listeners
       process.on('SIGTERM', () => killServer(server, true));
