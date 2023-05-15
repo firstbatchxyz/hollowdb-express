@@ -26,7 +26,7 @@ export class Prover {
       key: string
     ];
   }> {
-    const fullProof = await snarkjs[this.proofSystem].fullProve(
+    return snarkjs[this.proofSystem].fullProve(
       // field names of this JSON object must match the input signal names of the circuit
       {
         preimage: preimage,
@@ -36,7 +36,6 @@ export class Prover {
       this.wasmPath,
       this.proverKey
     );
-    return fullProof;
   }
 
   valueToBigInt = (value: unknown): bigint => {

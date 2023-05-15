@@ -21,7 +21,7 @@ Install the packages with:
 yarn
 ```
 
-Put your arweave wallet under `src/configurations` as `wallet.json`. Then, start the server by providing the contract transaction id to connect to:
+Put your Arweave wallet in `secrets/wallet.json`. Then, start the server by providing the contract transaction id to connect to:
 
 ```bash
 yarn start <contract-txid>

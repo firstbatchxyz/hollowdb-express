@@ -49,7 +49,7 @@
     "start:dev": "export NODE_ENV=dev && yarn start",
     "start:test": "export NODE_ENV=test && yarn start",
     "start": "yarn clean:cache && yarn build && node build/src/index.js",
-    "build": "yarn clean && yarn compile",
+    "build": "yarn compile",
     "lint": "gts lint",
     "clean": "gts clean",
     "clean:cache": "rimraf ./cache",

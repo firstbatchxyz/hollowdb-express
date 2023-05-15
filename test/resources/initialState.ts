@@ -1,5 +1,5 @@
 const initialState = {
-  owner: "",
+  owner: '',
   verificationKey: null,
   isProofRequired: true,
   canEvolve: true,
