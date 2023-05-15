@@ -67,10 +67,11 @@ class HollowClient implements Client {
 
   public static getInstance(): HollowClient {
     if (!HollowClient.instance) {
-      if (config.CONTRACT_TX_ID === '') {
-        throw new Error(
-          'Contract tx id not found, please use yarn start <CONTRACT_TX_ID>'
-        );
+      if (!config.CONTRACT_TX_ID) {
+        throw new Error('Contract txId not found in config.');
+      }
+      if (!config.ARWEAVE_WALLET) {
+        throw new Error('Wallet not found in config.');
       }
 
       HollowClient.instance = new HollowClient(

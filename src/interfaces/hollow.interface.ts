@@ -1,3 +1,5 @@
+import {} from 'express';
+
 export interface IPutBody {
   key: string;
   value: string | object;

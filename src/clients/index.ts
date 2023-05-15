@@ -1,5 +1,5 @@
 import {hollowClient} from './hollow';
-import {bundlrClient} from './bundlr';
+// import {bundlrClient} from './bundlr';
 
 /**
  * Calls destroy of each client singleton.

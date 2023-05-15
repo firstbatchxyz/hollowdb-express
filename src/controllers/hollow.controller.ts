@@ -9,18 +9,24 @@ import type {
   IUpdateBody,
 } from '../interfaces/hollow.interface';
 
+// TODO: remove "as string" castings
+
 export async function put(
   request: Request<{}, {}, IPutBody>,
   response: Response
 ) {
   const {key, value} = request.body;
+  console.log('PUTTING:', typeof value);
 
   try {
     // TODO: if value is not a string, make it via JSON.stringify()
-    await hollowClient().hollowdb.put(key, value);
+    await hollowClient().hollowdb.put(key, value as string);
     return respond.success(response, 'success', {}, StatusCodes.OK);
-  } catch (error) {
-    // TODO: catch key exists error
+  } catch (err) {
+    const error = err as Error;
+    if (error.message.startsWith('Contract Error')) {
+      return respond.failure(response, error.message, StatusCodes.BAD_REQUEST);
+    }
     return respond.error(response, 'hollowdb.put', error);
   }
 }
@@ -31,9 +37,13 @@ export async function update(
 ) {
   const {key, value, proof} = request.body;
   try {
-    await hollowClient().hollowdb.update(key, value, proof);
+    await hollowClient().hollowdb.update(key, value as string, proof);
     return respond.success(response, 'success', {}, StatusCodes.OK);
-  } catch (error) {
+  } catch (err) {
+    const error = err as Error;
+    if (error.message.startsWith('Contract Error')) {
+      return respond.failure(response, error.message, StatusCodes.BAD_REQUEST);
+    }
     return respond.error(response, 'hollowdb.update', error);
   }
 }
@@ -46,17 +56,18 @@ export async function remove(
   try {
     await hollowClient().hollowdb.remove(key, proof);
     return respond.success(response, 'success', {}, StatusCodes.OK);
-  } catch (error) {
+  } catch (err) {
+    const error = err as Error;
+    if (error.message.startsWith('Contract Error')) {
+      return respond.failure(response, error.message, StatusCodes.BAD_REQUEST);
+    }
     return respond.error(response, 'hollowdb.remove', error);
   }
 }
 
 // TODO check if the response from hollow is empty, then return 404
-export async function get(
-  request: Request<IGetParam, {}, {}>,
-  response: Response
-) {
-  const {key} = request.params;
+export async function get(request: Request, response: Response) {
+  const {key} = request.params as unknown as IGetParam; // TODO: would like to have a better version
   try {
     const value = await hollowClient().hollowdb.get(key);
     return respond.success(response, 'success', {value}, StatusCodes.OK);

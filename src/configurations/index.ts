@@ -7,14 +7,12 @@ interface Config {
   readonly LOG_LEVEL: LogLevel;
   readonly NODE_ENV: Environment;
   // readonly USE_BUNDLR_NETWORK: boolean;
-  ARWEAVE_WALLET: JWKInterface;
-  CONTRACT_TX_ID: string;
+  ARWEAVE_WALLET?: JWKInterface;
+  CONTRACT_TX_ID?: string;
 }
 
 export const config: Config = {
   LOG_LEVEL: (process.env.LOG_LEVEL || 'debug') as LogLevel,
   NODE_ENV: (process.env.NODE_ENV || 'development') as Environment,
   // USE_BUNDLR_NETWORK: (process.env.USE_BUNDLR_NETWORK || false) as boolean,
-  ARWEAVE_WALLET: {} as JWKInterface, // will be set by server launch
-  CONTRACT_TX_ID: '', // will be set by server launch
 };
