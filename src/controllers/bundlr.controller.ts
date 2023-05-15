@@ -2,8 +2,12 @@ import type {Request, Response} from 'express';
 import {StatusCodes} from 'http-status-codes';
 // import {bundlrClient} from '../clients/bundlr';
 import {respond} from '../utilities/respond';
+import type {IUploadBody} from '../interfaces/bundlr.interface';
 
-export async function upload(request: Request, response: Response) {
+export async function upload(
+  request: Request<{}, {}, IUploadBody>,
+  response: Response
+) {
   return respond.failure(
     response,
     'Not implemented.',
