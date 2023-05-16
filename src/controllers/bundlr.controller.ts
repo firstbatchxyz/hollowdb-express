@@ -1,24 +1,33 @@
 import type {Request, Response} from 'express';
 import {StatusCodes} from 'http-status-codes';
-import {bundlrClient} from '../clients/bundlr';
+// import {bundlrClient} from '../clients/bundlr';
 import {respond} from '../utilities/respond';
+import type {IUploadBody} from '../interfaces/bundlr.interface';
 
-export async function upload(request: Request, response: Response) {
-  const payload = request.body;
-
-  const tags = [{name: 'Content-Type', value: 'application/json'}];
-  const transaction = bundlrClient().bundlr.createTransaction(
-    JSON.stringify({
-      data: payload,
-    }),
-    {
-      tags: tags,
-    }
+export async function upload(
+  request: Request<{}, {}, IUploadBody>,
+  response: Response
+) {
+  return respond.failure(
+    response,
+    'Not implemented.',
+    StatusCodes.NOT_IMPLEMENTED
   );
 
-  await transaction.sign();
-  const txID = transaction.id;
-  await transaction.upload();
+  // const {payload} = request.body;
 
-  return respond.success(response, '', {result: txID}, StatusCodes.CREATED);
+  // const transaction = bundlrClient().bundlr.createTransaction(
+  //   JSON.stringify({
+  //     data: payload,
+  //   }),
+  //   {
+  //     tags: [{name: 'Content-Type', value: 'application/json'}],
+  //   }
+  // );
+
+  // await transaction.sign();
+  // const txID = transaction.id;
+  // await transaction.upload();
+
+  // return respond.success(response, '', {result: txID}, StatusCodes.CREATED);
 }

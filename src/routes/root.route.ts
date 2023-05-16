@@ -1,16 +1,23 @@
 import {Router} from 'express';
 import {put, update, remove, get} from '../controllers/hollow.controller';
-// import {upload} from '../controllers/bundlr.controller';
-import {schemas} from '../schemas/schema';
-import {validate} from '../middlewares/validator';
+import {upload} from '../controllers/bundlr.controller';
+import {
+  getValidator,
+  putValidator,
+  removeValidator,
+  updateValidator,
+} from '../validators/hollow.validator';
+import {uploadValidator} from '../validators/bundlr.validator';
 
 const router = Router();
 
-router.post('/put', validate(schemas.put, 'body'), put);
-router.post('/update', validate(schemas.update, 'body'), update);
-router.post('/remove', validate(schemas.remove, 'body'), remove);
-router.get('/get/:key', validate(schemas.get, 'params'), get);
+// hollowdb
+router.get('/get/:key', getValidator, get);
+router.post('/put', putValidator, put);
+router.post('/update', updateValidator, update);
+router.post('/remove', removeValidator, remove);
 
-// router.post('/upload', upload);
+// bundlr
+router.post('/upload', uploadValidator, upload);
 
 export default router;
