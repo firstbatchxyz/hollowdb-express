@@ -2,12 +2,12 @@ import {} from 'express';
 
 export interface IPutBody {
   key: string;
-  value: string | object;
+  value: unknown;
 }
 
 export interface IUpdateBody {
   key: string;
-  value: string | object;
+  value: unknown;
   proof: object | undefined;
 }
 

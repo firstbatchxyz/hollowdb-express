@@ -12,10 +12,9 @@ class BundlrClient implements Client {
     this.bundlr = new Bundlr('http://node1.bundlr.network', 'arweave', jwk);
   }
 
-  //download the cache and setVerkey and whiteLists if needed
+  // todo
   public async setup(): Promise<void> {}
-
-  //TODO: delete cache
+  // todo
   public async destroy(): Promise<void> {}
 
   public static getInstance(): BundlrClient {
