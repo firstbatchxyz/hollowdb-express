@@ -14,7 +14,6 @@ export async function put(
   response: Response
 ) {
   const {key, value} = request.body;
-  console.log('PUTTING:', typeof value);
 
   try {
     await hollowClient().hollowdb.put(key, value);
