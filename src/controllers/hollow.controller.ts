@@ -9,8 +9,6 @@ import type {
   IUpdateBody,
 } from '../interfaces/hollow.interface';
 
-// TODO: remove "as string" castings
-
 export async function put(
   request: Request<{}, {}, IPutBody>,
   response: Response
@@ -19,8 +17,7 @@ export async function put(
   console.log('PUTTING:', typeof value);
 
   try {
-    // TODO: if value is not a string, make it via JSON.stringify()
-    await hollowClient().hollowdb.put(key, value as string);
+    await hollowClient().hollowdb.put(key, value);
     return respond.success(response, 'success', {}, StatusCodes.OK);
   } catch (err) {
     const error = err as Error;
@@ -37,7 +34,7 @@ export async function update(
 ) {
   const {key, value, proof} = request.body;
   try {
-    await hollowClient().hollowdb.update(key, value as string, proof);
+    await hollowClient().hollowdb.update(key, value, proof);
     return respond.success(response, 'success', {}, StatusCodes.OK);
   } catch (err) {
     const error = err as Error;
