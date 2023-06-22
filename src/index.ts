@@ -6,22 +6,13 @@ import {logger} from './utilities/logger';
 import {Server} from 'http';
 import {destroyClients, setupClients} from './clients';
 import cors from 'cors';
-import type {JWKInterface} from 'warp-contracts';
-import {readFileSync} from 'fs';
 
 /**
  * Prepare the Express HTTP server
  * @returns A promise to Server which resolves once it starts listening.
  */
-export async function launchServer(
-  contractTxId: string,
-  wallet: JWKInterface
-): Promise<Server> {
+export async function launchServer(): Promise<Server> {
   logger.log(`Starting server (env: ${config.NODE_ENV})`);
-
-  // update config
-  config.CONTRACT_TX_ID = contractTxId;
-  config.ARWEAVE_WALLET = wallet;
 
   // setup middlewares & routes
   const app = express();
@@ -70,14 +61,8 @@ if (require.main === module) {
   if (process.argv.length !== 3) {
     throw new Error('Please provide contractTxId as an argument.');
   }
-  const contractTxId = process.argv[2];
 
-  // read wallet
-  const wallet = JSON.parse(
-    readFileSync('./src/secrets/wallet.json').toString()
-  ) as JWKInterface;
-
-  launchServer(contractTxId, wallet)
+  launchServer()
     .then(server => {
       // signal listeners
       process.on('SIGTERM', () => killServer(server, true));

@@ -61,7 +61,7 @@ describe('ExpressJS tests', () => {
     console.log(verificationKey.protocol, 'prover ready');
 
     // start the server
-    server = await launchServer(contractTxId, owner);
+    server = await launchServer();
     console.log('waiting a bit for server to be ready...');
     await sleep(1800);
   });
