@@ -1,158 +1,179 @@
 const contractSource = `
-// contracts/hollowDB/actions/crud/get.ts
-var get = async (state, action) => {
-  const { key } = action.input.data;
-  return {
-    result: await SmartWeave.kv.get(key)
-  };
-};
+// src/contracts/errors/index.ts
+var KeyExistsError = new ContractError("Key already exists.");
+var KeyNotExistsError = new ContractError("Key does not exist.");
+var CantEvolveError = new ContractError("Evolving is disabled.");
+var NoVerificationKeyError = new ContractError("No verification key.");
+var UnknownProtocolError = new ContractError("Unknown protocol.");
+var NotWhitelistedError = new ContractError("Not whitelisted.");
+var InvalidProofError = new ContractError("Invalid proof.");
+var ExpectedProofError = new ContractError("Expected a proof.");
+var NullValueError = new ContractError("Value cant be null, use remove instead.");
+var NotOwnerError = new ContractError("Not contract owner.");
+var InvalidFunctionError = new ContractError("Invalid function.");
 
-// contracts/hollowDB/errors/index.ts
-var errors = {
-  KeyExistsError: new ContractError("Key already exists, use update instead"),
-  KeyNotExistsError: new ContractError("Key does not exist"),
-  CantEvolveError: new ContractError("Evolving is disabled"),
-  NoVerificationKeyError: new ContractError("Verification key is not set"),
-  UnknownProofSystemError: new ContractError("Unknown proof system"),
-  NotWhitelistedError: (f) => new ContractError("User is not whitelisted for: " + f),
-  UnknownFunctionError: (f) => new ContractError("Unknown function: ", f),
-  InvalidProofError: (f) => new ContractError("Proof verification failed in: " + f),
-  NotOwnerError: (f) => new ContractError("Only the contract owner has access to: " + f)
-};
-var errors_default = errors;
-
-// contracts/hollowDB/actions/crud/put.ts
-var put = async (state, action) => {
-  const { key, value } = action.input.data;
-  if (state.isWhitelistRequired.put && !state.whitelist.put[action.caller]) {
-    throw errors_default.NotWhitelistedError(action.input.function);
-  }
-  if (await SmartWeave.kv.get(key) !== null) {
-    throw errors_default.KeyExistsError;
-  }
-  await SmartWeave.kv.put(key, value);
-  return { state };
-};
-
-// contracts/hollowDB/utils/index.ts
+// src/contracts/utils/index.ts
 var verifyProof = async (proof, psignals, verificationKey) => {
   if (verificationKey === null) {
-    throw errors_default.NoVerificationKeyError;
+    throw NoVerificationKeyError;
   }
   if (verificationKey.protocol !== "groth16" && verificationKey.protocol !== "plonk") {
-    throw errors_default.UnknownProofSystemError;
+    throw UnknownProtocolError;
   }
   return await SmartWeave.extensions[verificationKey.protocol].verify(verificationKey, psignals, proof);
 };
-var valueToBigInt = (value) => {
-  return BigInt(SmartWeave.extensions.ethers.utils.ripemd160(Buffer.from(JSON.stringify(value))));
-};
-
-// contracts/hollowDB/actions/crud/update.ts
-var update = async (state, action) => {
-  const { key, value, proof } = action.input.data;
-  if (state.isWhitelistRequired.update && !state.whitelist.update[action.caller]) {
-    throw errors_default.NotWhitelistedError(action.input.function);
-  }
-  const dbValue = await SmartWeave.kv.get(key);
-  if (dbValue === null) {
-    throw errors_default.KeyNotExistsError;
-  }
-  if (!state.isProofRequired || await verifyProof(proof, [valueToBigInt(dbValue), valueToBigInt(value), BigInt(key)], state.verificationKey)) {
-    await SmartWeave.kv.put(key, value);
+var hashToGroup = (value) => {
+  if (value) {
+    return BigInt(SmartWeave.extensions.ethers.utils.ripemd160(Buffer.from(JSON.stringify(value))));
   } else {
-    throw errors_default.InvalidProofError(action.input.function);
+    return BigInt(0);
   }
-  return { state };
 };
-
-// contracts/hollowDB/actions/crud/remove.ts
-var remove = async (state, action) => {
-  const { key, proof } = action.input.data;
-  if (state.isWhitelistRequired.update && !state.whitelist.update[action.caller]) {
-    throw errors_default.NotWhitelistedError(action.input.function);
+var safeGet = async (key) => {
+  const val = await SmartWeave.kv.get(key);
+  if (val === null) {
+    throw KeyNotExistsError;
   }
-  const dbValue = await SmartWeave.kv.get(key);
-  if (dbValue === null) {
-    throw errors_default.KeyNotExistsError;
-  }
-  if (!state.isProofRequired || await verifyProof(proof, [valueToBigInt(dbValue), 0n, BigInt(key)], state.verificationKey)) {
-    await SmartWeave.kv.put(key, null);
-  } else {
-    throw errors_default.InvalidProofError(action.input.function);
-  }
-  return { state };
+  return val;
 };
-
-// contracts/hollowDB/actions/evolve.ts
-var evolve = async (state, action) => {
-  if (action.caller !== state.owner) {
-    throw errors_default.NotOwnerError(action.input.function);
+function assertOwner(state, caller) {
+  if (caller !== state.owner) {
+    throw NotOwnerError;
   }
+}
+function assertWhitelist(state, caller, list) {
+  if (state.isWhitelistRequired[list] && !state.whitelists[list][caller]) {
+    throw NotWhitelistedError;
+  }
+}
+async function verifyAuthProof(state, proof, oldValue, newValue, key) {
+  if (!state.isProofRequired.auth)
+    return;
+  if (!proof) {
+    throw ExpectedProofError;
+  }
+  const verificationSuccess = await verifyProof(
+    proof,
+    [hashToGroup(oldValue), hashToGroup(newValue), BigInt(key)],
+    state.verificationKeys.auth
+  );
+  if (!verificationSuccess) {
+    throw InvalidProofError;
+  }
+}
+
+// src/contracts/functions/crud.ts
+async function get(_, { key }) {
+  return {
+    result: await SmartWeave.kv.get(key)
+  };
+}
+async function put(state, { key, value }, caller) {
+  assertWhitelist(state, caller, "put");
+  if (value === null) {
+    throw NullValueError;
+  }
+  if (await SmartWeave.kv.get(key) !== null) {
+    throw KeyExistsError;
+  }
+  await SmartWeave.kv.put(key, value);
+  return { state };
+}
+async function remove(state, { key, proof }, caller) {
+  assertWhitelist(state, caller, "update");
+  const dbValue = await safeGet(key);
+  await verifyAuthProof(state, proof, dbValue, null, key);
+  await SmartWeave.kv.del(key);
+  return { state };
+}
+async function update(state, { key, value, proof }, caller) {
+  assertWhitelist(state, caller, "update");
+  if (value === null) {
+    throw NullValueError;
+  }
+  const dbValue = await safeGet(key);
+  await verifyAuthProof(state, proof, dbValue, value, key);
+  await SmartWeave.kv.put(key, value);
+  return { state };
+}
+
+// src/contracts/functions/state.ts
+async function evolve(state, srcTxId, caller) {
+  assertOwner(state, caller);
   if (!state.canEvolve) {
-    throw errors_default.CantEvolveError;
+    throw CantEvolveError;
   }
-  state.evolve = action.input.value;
+  state.evolve = srcTxId;
   return { state };
-};
-
-// contracts/hollowDB/actions/state/getAllKeys.ts
-var getAllKeys = async (state, action) => {
+}
+async function getKeys(_, { options }) {
   return {
-    result: await SmartWeave.kv.keys()
+    result: await SmartWeave.kv.keys(options)
   };
-};
-
-// contracts/hollowDB/actions/state/updateState.ts
-var updateState = async (state, action) => {
-  const { newState } = action.input.data;
-  if (action.caller !== state.owner) {
-    throw errors_default.NotOwnerError(action.input.function);
-  }
+}
+async function getKVMap(_, { options }) {
   return {
-    state: {
-      ...state,
-      ...newState
-    }
+    result: await SmartWeave.kv.kvMap(options)
   };
-};
-
-// contracts/hollowDB/actions/state/updateWhitelist.ts
-var updateWhitelist = async (state, action) => {
-  const { whitelist, type } = action.input.data;
-  if (action.caller !== state.owner) {
-    throw errors_default.NotOwnerError(action.input.function);
+}
+async function updateOwner(state, { newOwner }, caller) {
+  assertOwner(state, caller);
+  state.owner = newOwner;
+  return { state };
+}
+async function updateRequirement(state, { name, type, value }, caller) {
+  assertOwner(state, caller);
+  if (type === "proof") {
+    state.isProofRequired[name] = value;
+  } else if (type === "whitelist") {
+    state.isWhitelistRequired[name] = value;
   }
-  whitelist.add.forEach((user) => {
-    state.whitelist[type][user] = true;
+  return { state };
+}
+async function updateVerificationKey(state, { name, verificationKey }, caller) {
+  assertOwner(state, caller);
+  state.verificationKeys[name] = verificationKey;
+  return { state };
+}
+async function updateWhitelist(state, { add, remove: remove2, name }, caller) {
+  assertOwner(state, caller);
+  add.forEach((user) => {
+    state.whitelists[name][user] = true;
   });
-  whitelist.remove.forEach((user) => {
-    delete state.whitelist[type][user];
+  remove2.forEach((user) => {
+    delete state.whitelists[name][user];
   });
   return { state };
-};
+}
 
-// contracts/hollowDB/contract.ts
+// src/contracts/hollowdb.ts
 var handle = (state, action) => {
-  switch (action.input.function) {
+  const { caller, input } = action;
+  switch (input.function) {
     case "get":
-      return get(state, action);
-    case "getAllKeys":
-      return getAllKeys(state, action);
+      return get(state, input.value);
+    case "getKeys":
+      return getKeys(state, input.value);
+    case "getKVMap":
+      return getKVMap(state, input.value);
     case "put":
-      return put(state, action);
+      return put(state, input.value, caller);
     case "update":
-      return update(state, action);
+      return update(state, input.value, caller);
     case "remove":
-      return remove(state, action);
-    case "updateState":
-      return updateState(state, action);
+      return remove(state, input.value, caller);
+    case "updateOwner":
+      return updateOwner(state, input.value, caller);
+    case "updateRequirement":
+      return updateRequirement(state, input.value, caller);
+    case "updateVerificationKey":
+      return updateVerificationKey(state, input.value, caller);
     case "updateWhitelist":
-      return updateWhitelist(state, action);
+      return updateWhitelist(state, input.value, caller);
     case "evolve":
-      return evolve(state, action);
+      return evolve(state, input.value, caller);
     default:
-      throw errors_default.UnknownFunctionError(action.input.function);
+      throw InvalidFunctionError;
   }
 };
 ` as string;

@@ -33,6 +33,7 @@ export async function update(
 ) {
   const {key, value, proof} = request.body;
   try {
+    console.log({key, value});
     await hollowClient().hollowdb.update(key, value, proof);
     return respond.success(response, 'success', {}, StatusCodes.OK);
   } catch (err) {

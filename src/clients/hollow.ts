@@ -57,7 +57,6 @@ class HollowClient implements Client {
   }
 
   public async destroy(): Promise<void> {
-    // TODO: check if this is the right way to close the warp
     try {
       await this.hollowdb.warp.close();
     } catch (error) {

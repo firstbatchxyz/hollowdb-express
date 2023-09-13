@@ -66,7 +66,6 @@ export async function killServer(server: Server, exitProcess = false) {
 }
 
 if (require.main === module) {
-  // get contractTxId as an argument
   if (process.argv.length !== 3) {
     throw new Error('Please provide contractTxId as an argument.');
   }
