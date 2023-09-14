@@ -1,10 +1,9 @@
-[![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![Test Workflow](https://github.com/firstbatchxyz/hollowdb-express/actions/workflows/test.yml/badge.svg?branch=master)
-[![Discord](https://dcbadge.vercel.app/api/server/2wuU9ym6fq?style=flat)](https://discord.gg/2wuU9ym6fq)
-
-# HollowDB Backend - ExpressJS
+# HollowDB Backend - ExpressJS (Hiring)
 
 HollowDB backend using ExpressJS.
+
+> [!WARNING]
+> For hiring purposes we included an arweave wallet jwk in this repository. Do not send any token to this wallet since it is not secure to do so.
 
 ## Usage
 
@@ -21,16 +20,8 @@ Install the packages with:
 yarn
 ```
 
-Put your Arweave wallet in `secrets/wallet.json`. Then, start the server by providing the contract transaction id to connect to:
+Start the server
 
 ```bash
-yarn start <contract-txid>
-```
-
-## Test
-
-You can run the Mocha tests where a local Arweave node will be created during the test, and the tests will be run over an ephemeral backend connected to a local contract.
-
-```sh
-yarn test
+yarn start
 ```

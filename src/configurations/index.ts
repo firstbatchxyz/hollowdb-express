@@ -1,6 +1,5 @@
 import {LogLevel} from 'warp-contracts';
 import type {JWKInterface} from 'warp-contracts';
-import {readFileSync} from 'fs';
 
 type Environment = 'development' | 'production' | 'test';
 type Mode = 'local' | 'kube';
@@ -9,48 +8,31 @@ interface Config {
   readonly LOG_LEVEL: LogLevel;
   readonly NODE_ENV: Environment;
   readonly MODE: 'local' | 'kube';
-  readonly USE_BUNDLR_NETWORK: boolean;
-  readonly ARWEAVE_WALLET?: JWKInterface;
-  readonly CONTRACT_TX_ID?: string;
+  // readonly USE_BUNDLR_NETWORK: boolean;
+  readonly ARWEAVE_WALLET: JWKInterface;
+  readonly CONTRACT_TX_ID: string;
 }
 
 export const config: Config = {
   LOG_LEVEL: (process.env.LOG_LEVEL || 'debug') as LogLevel,
   NODE_ENV: (process.env.NODE_ENV || 'development') as Environment,
-  USE_BUNDLR_NETWORK: (process.env.USE_BUNDLR_NETWORK || false) as boolean,
+  // USE_BUNDLR_NETWORK: (process.env.USE_BUNDLR_NETWORK || false) as boolean,
   MODE: (process.env.MODE || 'local') as Mode,
   ARWEAVE_WALLET: getWallet(),
-  CONTRACT_TX_ID: process.argv[2],
+  CONTRACT_TX_ID: 'J6jlmtDtMe943HbZXT43bhHNRlI7pNqgUm-veLsXk2k',
 };
 
 function getWallet() {
-  const mode = (process.env.MODE || 'local') as Mode;
-
-  if (mode === 'local') {
-    return JSON.parse(
-      readFileSync('./src/secrets/wallet.json').toString()
-    ) as JWKInterface;
-  }
-
-  if (mode === 'kube') {
-    return JSON.parse(
-      readFileSync('/run/secrets/wallet.json').toString()
-    ) as JWKInterface;
-  }
-
-  throw new Error('Invalid mode.');
-}
-
-function getContractTxId() {
-  const mode = (process.env.MODE || 'local') as Mode;
-
-  if (mode === 'local') {
-    return process.argv[2];
-  }
-
-  if (mode === 'kube') {
-    return process.env.CONTRACT_TX_ID;
-  }
-
-  throw new Error('Invalid mode.');
+  return {
+    d: 'U_8H3GNsXuWczIOqlxugtU-2YerROz-3xRR6aeLRXA0AI8fRE82M2HDKrjI6LsirmY9jnOPKpLQRqqPIwyiwPcSTNfYwXOWja1jcoDxYez1yGKhjW1ifrpmm2itMilo5PzCtAQCRqBMS0dF5ZBQOorwbJsJMIZX7Y6lDzbgkOz0RL4hdp9SiPVMA-L8N-0S2517i-tPU-Vno7KKDIGDuaGtofoDNiCZgROyI85quTMk8eSE2hD3XF0l4z89YRpmCLfYgvquGsIMOxThT5oe1hNGTvw6xoDNYPjM9NmilTdxsJ9SRp9DjXPYOWB2KrQgyYBNFjXQJeOpn6OhL6SE1JONUwQROLUMuuaeZymEUUcDjE7_2eFMMN4PejiHwJ_X8ImuZQti8bwZAiAwwyr8s1AORlq7F9ppnh6_FuuLKIyjBB8Q-XWTbAZeog5VzK2P_qhWUCbfbKEsx80TmZmRrGDfzl-0Ev7tpUB99PjNam6ZGAR1v8-WbDeKatYMvohFjcYRajVJP1A-oRPxTUyKfae6UghazuJBi9E3gnKnkc12uwsM6Y_Sh5R2OLek0KUb9T2jhzd1TD2i6BLfMWF62KVvy-9z7CNWLrkxytUlzIl5rGqMcR9jHT3cRZ74lzYDTBUfpUDPoOkoU9cDkIUkvANCXdeLoflo73_vhcpDfgiE',
+    dp: 'Cxj2ZYLlOnfpv-fV8NDaayTZE6gyGiy0bCN9rMc-OwK6Ko2CWWQlD8uhnhTTwThrz0hanhGRY5YQmTRYZfmTu_WgmIajuw-780rjPENRs6-67caKluctjRT1cGkKkfDwmGaU3_UsuloXcGLzdUqhsTobgKLgtpo5TN4l-AnAcEgoc-igcmON-ZvoxYrV9rTEczqQdx3hDqkzsDT7yql39u6l3qPcwE1IhvUHtnhGtw9wKqvYlKvO8WOUlzrOWOC58Gzp6GUetAoRFRtt75hiYvyzUKcW4PWRLpcm-1otzaqzHfFaWqfYbcStrf-ciZGYiOLxv5biMa0QEkt7rzcANw',
+    dq: 'NW3z9ZWmImMa44JLCxm9JWIxZEqHbxeoXtpbVwtYvOYhWtTQLVpvh0zsQqf7o_3PtcAXdU-40VafN59laXzxhPNDi5RfVihnE2GF1pIC7cmCslTP8X0cxRUuA9vA7buyViOG5pue917cgNZE5Emeq4JFtX1AUTJsuLzdG4OGjb_W0xEZtBi3tl2_MoXSWSpu9lL3qT_fQmLgi1LJ6EF-9VS1aXCHYFBFTDtit_wqan0ZnCr7puU83xVdrdzIXF00Izf1DGMlfjhsYH4P8zLaDFtoKZhC6hzxb_lrUp_odL2yOrodjcqRnvAitI85sa6Nt7_OhQnwXjAgvhEDwvXp8Q',
+    e: 'AQAB',
+    ext: true,
+    kty: 'RSA',
+    n: 'jBvBeNWqjknpXY4Fuc1BQP1nn14enGhtLnVN9KUMsroJQd96vUinXGpobSFMJgSTlL7qkLjH50jE67GS3nQu5xOQ_WPLvQ7ll4r6jApuAfDxy-rCUjOLpsUy_YZo1ac6Zwm8U4p5lhYYCRkHKg-7wp1GKosqx_CnzUKm0fXFJYaNDgTNoqHwxCEWoj1r2WSM-SToLUoA5NKMcSJV_9gQbaGUw8pxCi1GAzysRlcxHIxu_XGeHkl-Ac1PEbyTmvDZg92kG8Ipi0bmDnV4s5hMFIgM7mJxZCbjaAaJsxNFfHkm88Sw8QspmE5doYxg3Y0IsZNHAyahfXpHMtYiwDFnSvDTw9oh2xJtd1vnlCAYelXElq2lxidf3MySiSWdLM3S-soE8G9CWzTomRZijgy2UX3p_8Spf2Q6_f6MrZVYzMCNVKKV58MZEdhcP9wfyxaPEf0J2DhlSHX0-4lGmjjYCRQcN_Z92D7-Kj13fwE3ZB-BHupnL9RTA3WmEbqkyvoohvcDNZMLJWM_Nl5FtHIk6QiwiMO2nWNfIqa83i-ncO8r61mKw5uslXzQIKuQuYgZA6k7nBYCMLovgAQsjkCZWcZJncd3661rV8RtybHkc2nH6E2aCrUmsBJAk9x-mtjP0AyDiVZWeOempXGTtc-7idJLJidIQlB_EKZDXisJVSM',
+    p: '9yC_7rcVQZmMpAUIJXka4OHVxMlDy1tM4c7sc5jsGi3bZzlm-5tPPTYkKUUjwWKlEuPlEjI7E7LFviWLHlsi11JskmsD42wJqGQUdG-DWXWSWsRyQFl2EAy-yuSvRoDJOnhTYSrxmyrdrp1uaAsLuxbw15WlfUEk49sER03k3P8baArRM-5JV-7PU7vCjEj-seNEmrDx3kWehjDi1C6BS9Fx-g_HTKNCCxiAWRKhj_mrdYTvx1GldvSaYj3ls-TB57fUnu0Lq4Q6uxCH9hyHpMJaaMQzJuvrIxWfULyvsszVWIF2CnSn2Xl4tWQq5lnHU7jmjzvqINDrJ4o4FGoSyw',
+    q: 'kSNvImAXAUPnBz_Mh8lABGg6pCwC50ROwoyOCC1_Wvdi989kK1IINcf4L5UGAWqCd7thknGaMECwt66labs6_u0N2HvhzozXfC0A3v-R-8Khn9wIIZWTJ6Raq8n6M3LVIUZG3IXB2f1d_RnNj7hi3RmV2G5qY-ZBx3BunNYxi6T2zJ712O9WuWkAXRcT1O2EXoAd1x8jUOY_GErBtBqled-6tkZA0hfe21CGqujUdaYwnJTkHPTFaOGY2nEtybBA29FQinQwUMp8ErN_6vpDGGZAse3W5al-pBNjrghk5VjNhH357fZxo10eNMc2fH2K4SNmqM3TOR0KnO76axqECQ',
+    qi: '7gkqRsycAqePo3LNRsr4dtkfwf3trrPZglhNSyrqsrIzJf_p5uDLfX5QngZxBrxh_gZfH7yClZ2xfa1TXqmeI47tnrLCMsOlL6islCKZBeGNTVbx-CsCX37arLjG2EE_fMARetky_LAQLhMsc7kLZRm1H_FwZnXqDBNIsvfipJEoVXgdge_YPYuhiFt6MYJ5WL8O0RABZLrd-9eEDwdRE56D2rSn_28FPlMSUXLC5Z4fAUlJ7NW3_OE8EBF_gh7TRGV421_fLKEsc_7jQ45Yo7MGLzGhgJ8ds8G4jaa9wAZ7fRuGBhswbRHtk9BKD7TgOQc_KY_0x6irjBK1NBYDlg',
+  } as JWKInterface;
 }
