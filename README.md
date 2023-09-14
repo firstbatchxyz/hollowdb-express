@@ -3,7 +3,7 @@
 HollowDB backend using ExpressJS.
 
 > [!WARNING]
-> For hiring purposes we included an arweave wallet jwk in this repository. Do not send any token to this wallet since it is not secure to do so.
+> For hiring purposes we included an arweave wallet jwk in this repository. Do not send any tokens to this wallet since it is not secure.
 
 ## Usage
 
@@ -20,7 +20,7 @@ Install the packages with:
 yarn
 ```
 
-Start the server
+Start the server:
 
 ```bash
 yarn start
