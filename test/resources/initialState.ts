@@ -1,9 +1,15 @@
-const initialState = {
+import type {HollowState} from 'hollowdb';
+
+export default {
   owner: '',
-  verificationKey: null,
-  isProofRequired: true,
+  verificationKeys: {
+    auth: null,
+  },
+  isProofRequired: {
+    auth: true,
+  },
   canEvolve: true,
-  whitelist: {
+  whitelists: {
     put: {},
     update: {},
   },
@@ -11,6 +17,4 @@ const initialState = {
     put: false,
     update: false,
   },
-};
-
-export default initialState;
+} satisfies HollowState;

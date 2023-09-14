@@ -1,11 +1,9 @@
 import {hollowClient} from './hollow';
-// import {bundlrClient} from './bundlr';
 
 /**
  * Calls destroy of each client singleton.
  */
 export async function destroyClients(): Promise<void> {
-  // await Promise.all([hollowClient().destroy(), bundlrClient().destroy()]);
   await hollowClient().destroy();
 }
 
@@ -14,7 +12,6 @@ export async function destroyClients(): Promise<void> {
  */
 export async function setupClients(): Promise<void> {
   await hollowClient().setup();
-  // await bundlrClient().setup();
 }
 
 export abstract class Client {
